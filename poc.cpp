@@ -4,4 +4,6 @@
 #pragma leco add_impl apple
 #endif
 
-int main() {}
+extern "C" void boosh();
+
+int main() { boosh(); }
