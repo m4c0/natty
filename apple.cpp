@@ -18,7 +18,7 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
 void boosh(auto &data, auto w, auto h) {
-  ref<CTFontRef> font{CTFontCreateWithName(CFSTR("Helvetica"), 12, nullptr)};
+  ref<CTFontRef> font{CTFontCreateWithName(CFSTR("Helvetica"), 48, nullptr)};
 
   ref<CGColorSpaceRef> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
@@ -28,9 +28,11 @@ void boosh(auto &data, auto w, auto h) {
                                               kCGImageAlphaPremultipliedLast)};
 
   ref<CFMutableDictionaryRef> attrs{
-      CFDictionaryCreateMutable(nullptr, 1, &kCFTypeDictionaryKeyCallBacks,
+      CFDictionaryCreateMutable(nullptr, 2, &kCFTypeDictionaryKeyCallBacks,
                                 &kCFTypeDictionaryValueCallBacks)};
   CFDictionaryAddValue(*attrs, kCTFontAttributeName, *font);
+  CFDictionaryAddValue(*attrs, kCTForegroundColorAttributeName,
+                       CGColorGetConstantColor(kCGColorWhite));
 
   ref<CFAttributedStringRef> attr_str{
       CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *attrs)};
