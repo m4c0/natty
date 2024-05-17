@@ -4,8 +4,11 @@
 import hai;
 
 namespace {
+struct error {};
+
 struct deleter {
   void operator()(CGColorSpaceRef r) { CGColorSpaceRelease(r); }
+  void operator()(CGContextRef r) { CGContextRelease(r); }
 };
 } // namespace
 
@@ -14,9 +17,13 @@ void boosh() {
   unsigned w = 1024;
   unsigned h = 1024;
 
-  hai::value_holder<CGColorSpaceRef, deleter> color_space{
+  hai::value_holder<CGColorSpaceRef, deleter> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
+  if (!*colour_space)
+    throw error{};
 
-  CGContextRef ctx = CGBitmapContextCreate(data, w, h, 8, w * 4, *color_space,
-                                           kCGImageAlphaPremultipliedLast);
+  hai::value_holder<CGContextRef, deleter> ctx{CGBitmapContextCreate(
+      data, w, h, 8, w * 4, *colour_space, kCGImageAlphaPremultipliedLast)};
+  if (!*ctx)
+    throw error{};
 }
