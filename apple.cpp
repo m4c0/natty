@@ -17,17 +17,18 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
 void boosh() {
-  void *data = NULL;
   unsigned w = 1024;
   unsigned h = 1024;
+  hai::array<unsigned char> data{w * h * 4};
 
   ref<CTFontRef> font{CTFontCreateWithName(CFSTR("Helvetica"), 12, nullptr)};
 
   ref<CGColorSpaceRef> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
 
-  ref<CGContextRef> ctx{CGBitmapContextCreate(
-      data, w, h, 8, w * 4, *colour_space, kCGImageAlphaPremultipliedLast)};
+  ref<CGContextRef> ctx{CGBitmapContextCreate(data.begin(), w, h, 8, w * 4,
+                                              *colour_space,
+                                              kCGImageAlphaPremultipliedLast)};
 
   ref<CFMutableDictionaryRef> attrs{
       CFDictionaryCreateMutable(nullptr, 1, &kCFTypeDictionaryKeyCallBacks,
@@ -36,4 +37,9 @@ void boosh() {
 
   ref<CFAttributedStringRef> attr_str{
       CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *attrs)};
+
+  ref<CTLineRef> line{CTLineCreateWithAttributedString(*attr_str)};
+
+  CGContextSetTextPosition(*ctx, 10, 20);
+  CTLineDraw(*line, *ctx);
 }
