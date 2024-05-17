@@ -1,4 +1,5 @@
-@import CoreGraphics;
+#pragma leco add_framework CoreGraphics
+#include <CoreGraphics/CoreGraphics.h>
 
 void boosh() {
   void * data = NULL;
