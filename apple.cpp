@@ -6,6 +6,7 @@
 #include <CoreText/CoreText.h>
 
 import hai;
+import stubby;
 
 namespace {
 struct deleter {
@@ -16,11 +17,7 @@ struct deleter {
 template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
-void boosh() {
-  unsigned w = 1024;
-  unsigned h = 1024;
-  hai::array<unsigned char> data{w * h * 4};
-
+void boosh(auto &data, auto w, auto h) {
   ref<CTFontRef> font{CTFontCreateWithName(CFSTR("Helvetica"), 12, nullptr)};
 
   ref<CGColorSpaceRef> colour_space{
@@ -42,4 +39,13 @@ void boosh() {
 
   CGContextSetTextPosition(*ctx, 10, 20);
   CTLineDraw(*line, *ctx);
+}
+
+void boosh() {
+  unsigned w = 1024;
+  unsigned h = 1024;
+  hai::array<stbi::pixel> data{w * h};
+  boosh(data, w, h);
+
+  stbi::write_rgba("out/test.png", w, h, data);
 }
