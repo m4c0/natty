@@ -29,10 +29,7 @@ font_t create_font(const char *name, unsigned size){
 } // namespace natty
 
 void boosh(unsigned w, unsigned h, auto &data) {
-  ref<HFONT> font{CreateFont(48, 0, 0, 0, FW_DONTCARE, false, false, false,
-                             ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-                             CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-                             DEFAULT_PITCH, "Helvetica")};
+  auto font = natty::create_font("Helvetica", 48);
 
   constexpr const auto buf_size = 1024;
   wchar_t buf[buf_size];
