@@ -17,7 +17,7 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 
 void boosh(unsigned w, unsigned h, auto &data) {
   ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
-  ref<HBITMAP> bmp{CreateBitmap(w, h, 1, 32, data.begin())};
+  ref<HBITMAP> bmp{CreateCompatibleBitmap(*dc, w, h)};
   SelectObject(*dc, *bmp);
 
   RECT rect{
@@ -39,8 +39,18 @@ void boosh(unsigned w, unsigned h, auto &data) {
   bmi.biBitCount = 32;
   bmi.biCompression = BI_RGB;
 
-  GetDIBits(*dc, *bmp, 0, h, data.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
+  hai::array<stbi::pixel> d{w * h};
+  GetDIBits(*dc, *bmp, 0, h, d.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
             DIB_RGB_COLORS);
+
+  for (auto y = 0; y < h; y++) {
+    auto *rf = &d[y * w];
+    auto *rt = &data[(h - y - 1) * w];
+    for (auto x = 0; x < w; x++) {
+      rt[x] = rf[x];
+      rt[x].a = rt[x].r;
+    }
+  }
 }
 
 void boosh() {
@@ -49,8 +59,5 @@ void boosh() {
   hai::array<stbi::pixel> data{w * h};
   boosh(w, h, data);
 
-  for (auto &c : data) {
-    c.a = c.r;
-  }
   stbi::write_rgba("out/test.png", w, h, data);
 }
