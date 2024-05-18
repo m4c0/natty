@@ -17,6 +17,17 @@ struct deleter {
 template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
+namespace natty {
+struct font : HFONT__ {};
+font_t create_font(const char *name, unsigned size){
+  auto res = CreateFont(size, 0, 0, 0, FW_DONTCARE, false, false, false,
+                        ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                        DEFAULT_QUALITY, DEFAULT_PITCH, name);
+  return hai::pimpl<font *>{static_cast<font *>(res),
+                            [](auto x) { DeleteObject(x); }};
+}
+} // namespace natty
+
 void boosh(unsigned w, unsigned h, auto &data) {
   ref<HFONT> font{CreateFont(48, 0, 0, 0, FW_DONTCARE, false, false, false,
                              ANSI_CHARSET, OUT_DEFAULT_PRECIS,

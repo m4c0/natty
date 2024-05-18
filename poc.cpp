@@ -2,4 +2,7 @@
 
 import natty;
 
-int main() { boosh(); }
+int main() {
+  auto font = natty::create_font("Helvetica", 64);
+  boosh();
+}
