@@ -18,7 +18,10 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 void boosh(unsigned w, unsigned h, auto &data) {
   ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
   ref<HBITMAP> bmp{CreateCompatibleBitmap(*dc, w, h)};
-  SelectObject(*dc, *bmp);
+  ref<HFONT> font{CreateFont(48, 0, 0, 0, FW_DONTCARE, false, false, false,
+                             ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+                             CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+                             DEFAULT_PITCH, "Helvetica")};
 
   RECT rect{
       .left = 0,
@@ -27,6 +30,8 @@ void boosh(unsigned w, unsigned h, auto &data) {
       .bottom = static_cast<long>(h),
   };
 
+  SelectObject(*dc, *bmp);
+  SelectObject(*dc, *font);
   SetBkColor(*dc, RGB(0, 0, 0));
   SetTextColor(*dc, RGB(255, 255, 255));
   DrawText(*dc, "Olá!", -1, &rect, DT_SINGLELINE);
