@@ -17,7 +17,7 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 
 void boosh(unsigned w, unsigned h, auto &data) {
   ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
-  ref<HBITMAP> bmp{CreateCompatibleBitmap(*dc, w, h)};
+  ref<HBITMAP> bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)};
   ref<HFONT> font{CreateFont(48, 0, 0, 0, FW_DONTCARE, false, false, false,
                              ANSI_CHARSET, OUT_DEFAULT_PRECIS,
                              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
@@ -53,7 +53,7 @@ void boosh(unsigned w, unsigned h, auto &data) {
     auto *rt = &data[(h - y - 1) * w];
     for (auto x = 0; x < w; x++) {
       rt[x] = rf[x];
-      rt[x].a = rt[x].r;
+      rt[x].a = 255;
     }
   }
 }
