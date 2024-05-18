@@ -26,7 +26,19 @@ void boosh(unsigned w, unsigned h, auto &data) {
       .right = static_cast<long>(w),
       .bottom = static_cast<long>(h),
   };
+
   DrawText(*dc, "Olá!", -1, &rect, DT_SINGLELINE);
+
+  BITMAPINFOHEADER bmi{};
+  bmi.biSize = sizeof(BITMAPINFOHEADER);
+  bmi.biWidth = w;
+  bmi.biHeight = h;
+  bmi.biPlanes = 1;
+  bmi.biBitCount = 32;
+  bmi.biCompression = BI_RGB;
+
+  GetDIBits(*dc, *bmp, 0, h, data.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
+            DIB_RGB_COLORS);
 }
 
 void boosh() {
@@ -34,4 +46,9 @@ void boosh() {
   unsigned h = 1024;
   hai::array<stbi::pixel> data{w * h};
   boosh(w, h, data);
+
+  for (auto &c : data) {
+    c.a = c.r;
+  }
+  stbi::write_rgba("out/test.png", w, h, data);
 }
