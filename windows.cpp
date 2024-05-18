@@ -27,6 +27,8 @@ void boosh(unsigned w, unsigned h, auto &data) {
       .bottom = static_cast<long>(h),
   };
 
+  SetBkColor(*dc, RGB(0, 0, 0));
+  SetTextColor(*dc, RGB(255, 255, 255));
   DrawText(*dc, "Olá!", -1, &rect, DT_SINGLELINE);
 
   BITMAPINFOHEADER bmi{};
