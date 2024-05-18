@@ -1,10 +1,12 @@
 #pragma leco add_framework CoreFoundation
 #pragma leco add_framework CoreGraphics
 #pragma leco add_framework CoreText
+module;
 
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
 
+module natty;
 import hai;
 import stubby;
 

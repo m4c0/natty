@@ -1,8 +1,10 @@
 #pragma leco add_library GDI32 USER32
+module;
 
 #define WIN32_MEAN_AND_LEAN
 #include <windows.h>
 
+module natty;
 import hai;
 import stubby;
 
