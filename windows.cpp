@@ -18,15 +18,17 @@ template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
 void boosh(unsigned w, unsigned h, auto &data) {
-  wchar_t buf[1024];
-  MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, 1024);
-
-  ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
-  ref<HBITMAP> bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)};
   ref<HFONT> font{CreateFont(48, 0, 0, 0, FW_DONTCARE, false, false, false,
                              ANSI_CHARSET, OUT_DEFAULT_PRECIS,
                              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
                              DEFAULT_PITCH, "Helvetica")};
+
+  constexpr const auto buf_size = 1024;
+  wchar_t buf[buf_size];
+  MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
+
+  ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
+  ref<HBITMAP> bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)};
 
   RECT rect{
       .left = 0,
@@ -40,6 +42,8 @@ void boosh(unsigned w, unsigned h, auto &data) {
   SetBkColor(*dc, RGB(0, 0, 0));
   SetTextColor(*dc, RGB(255, 255, 255));
   DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
+
+  // TODO: Set position
 
   BITMAPINFOHEADER bmi{};
   bmi.biSize = sizeof(BITMAPINFOHEADER);

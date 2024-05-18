@@ -41,6 +41,7 @@ void boosh(auto &data, auto w, auto h) {
 
   ref<CTLineRef> line{CTLineCreateWithAttributedString(*attr_str)};
 
+  // TODO: adjust position to be top-down
   CGContextSetTextPosition(*ctx, 10, 20);
   CTLineDraw(*line, *ctx);
 }
