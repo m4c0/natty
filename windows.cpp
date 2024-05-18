@@ -23,20 +23,32 @@ font_t create_font(const char *name, unsigned size){
   auto res = CreateFont(size, 0, 0, 0, FW_DONTCARE, false, false, false,
                         ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                         DEFAULT_QUALITY, DEFAULT_PITCH, name);
-  return hai::pimpl<font *>{static_cast<font *>(res),
-                            [](auto x) { DeleteObject(x); }};
+  return font_t{static_cast<font *>(res), [](auto x) { DeleteObject(x); }};
+}
+
+struct surface {
+  ref<HDC> dc;
+  ref<HBITMAP> bmp;
+};
+surface_t create_surface(unsigned w, unsigned h) {
+  return surface_t{new surface{
+                       .dc{CreateCompatibleDC(GetDC(nullptr))},
+                       .bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)},
+                   },
+                   [](auto x) { delete x; }}; // namespace natty
 }
 } // namespace natty
 
 void boosh(unsigned w, unsigned h, auto &data) {
   auto font = natty::create_font("Helvetica", 48);
+  auto surf = natty::create_surface(w, h);
 
   constexpr const auto buf_size = 1024;
   wchar_t buf[buf_size];
   MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
 
-  ref<HDC> dc{CreateCompatibleDC(GetDC(nullptr))};
-  ref<HBITMAP> bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)};
+  ref<HDC> &dc = (*surf)->dc;
+  ref<HBITMAP> &bmp = (*surf)->bmp;
 
   RECT rect{
       .left = 0,
@@ -76,8 +88,8 @@ void boosh(unsigned w, unsigned h, auto &data) {
 }
 
 void boosh() {
-  unsigned w = 1024;
-  unsigned h = 1024;
+  unsigned w = 256;
+  unsigned h = 256;
   hai::array<stbi::pixel> data{w * h};
   boosh(w, h, data);
 
