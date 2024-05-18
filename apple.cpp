@@ -19,22 +19,46 @@ struct deleter {
 template <typename T> using ref = hai::value_holder<T, deleter>;
 } // namespace
 
-void boosh(auto &data, auto w, auto h) {
-  ref<CTFontRef> font{CTFontCreateWithName(CFSTR("Helvetica"), 48, nullptr)};
+namespace natty {
+struct font {
+  ref<CTFontRef> fnt;
+  ref<CFMutableDictionaryRef> attrs;
+};
+font_t create_font(const char *name, unsigned size) {
+  auto f = new font {
+    .font{CTFontCreateWithName(CFSTR("Helvetica"), 48, nullptr)};
 
+    .attrs{CFDictionaryCreateMutable(nullptr, 2, &kCFTypeDictionaryKeyCallBacks,
+                                     &kCFTypeDictionaryValueCallBacks)};
+  };
+
+  CFDictionaryAddValue(*f->attrs, kCTFontAttributeName, *f->font);
+  CFDictionaryAddValue(*f->attrs, kCTForegroundColorAttributeName,
+                       CGColorGetConstantColor(kCGColorWhite));
+  return font_t{f, [](auto x) { delete x; }};
+}
+
+struct surface {
+  ref<CGContextRef> ctx;
+  hai::array<stbi::pixel> data;
+};
+surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
 
-  ref<CGContextRef> ctx{CGBitmapContextCreate(data.begin(), w, h, 8, w * 4,
-                                              *colour_space,
-                                              kCGImageAlphaPremultipliedLast)};
+  return surface_t{new surface{
+                       .ctx = CGBitmapContextCreate(
+                           data.begin(), w, h, 8, w * 4, *colour_space,
+                           kCGImageAlphaPremultipliedLast),
+                       .data{w * h},
+                   },
+                   [](auto x) { delete x; }};
+};
+} // namespace natty
 
-  ref<CFMutableDictionaryRef> attrs{
-      CFDictionaryCreateMutable(nullptr, 2, &kCFTypeDictionaryKeyCallBacks,
-                                &kCFTypeDictionaryValueCallBacks)};
-  CFDictionaryAddValue(*attrs, kCTFontAttributeName, *font);
-  CFDictionaryAddValue(*attrs, kCTForegroundColorAttributeName,
-                       CGColorGetConstantColor(kCGColorWhite));
+void boosh(auto &data, auto w, auto h) {
+  auto font = natty::create_font("Helvetica", 48);
+  auto surf = natty::create_surface(w, h);
 
   ref<CFAttributedStringRef> attr_str{
       CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *attrs)};
