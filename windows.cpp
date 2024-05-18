@@ -41,7 +41,7 @@ surface_t create_surface(unsigned w, unsigned h) {
                       .right = static_cast<long>(w),
                       .bottom = static_cast<long>(h),
                   }},
-      [](auto x) { delete x; }}; // namespace natty
+      [](auto x) { delete x; }};
 }
 } // namespace natty
 
