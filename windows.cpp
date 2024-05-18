@@ -29,13 +29,19 @@ font_t create_font(const char *name, unsigned size){
 struct surface {
   ref<HDC> dc;
   ref<HBITMAP> bmp;
+  RECT rect;
 };
 surface_t create_surface(unsigned w, unsigned h) {
-  return surface_t{new surface{
-                       .dc{CreateCompatibleDC(GetDC(nullptr))},
-                       .bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)},
-                   },
-                   [](auto x) { delete x; }}; // namespace natty
+  return surface_t{
+      new surface{.dc{CreateCompatibleDC(GetDC(nullptr))},
+                  .bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)},
+                  .rect{
+                      .left = 0,
+                      .top = 0,
+                      .right = static_cast<long>(w),
+                      .bottom = static_cast<long>(h),
+                  }},
+      [](auto x) { delete x; }}; // namespace natty
 }
 } // namespace natty
 
@@ -49,13 +55,7 @@ void boosh(unsigned w, unsigned h, auto &data) {
 
   ref<HDC> &dc = (*surf)->dc;
   ref<HBITMAP> &bmp = (*surf)->bmp;
-
-  RECT rect{
-      .left = 0,
-      .top = 0,
-      .right = static_cast<long>(w),
-      .bottom = static_cast<long>(h),
-  };
+  RECT rect = (*surf)->rect;
 
   SelectObject(*dc, *bmp);
   SelectObject(*dc, *font);
