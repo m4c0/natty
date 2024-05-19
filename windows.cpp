@@ -69,23 +69,16 @@ void boosh(unsigned w, unsigned h, auto &data) {
   BITMAPINFOHEADER bmi{};
   bmi.biSize = sizeof(BITMAPINFOHEADER);
   bmi.biWidth = w;
-  bmi.biHeight = h;
+  bmi.biHeight = -h;
   bmi.biPlanes = 1;
   bmi.biBitCount = 32;
   bmi.biCompression = BI_RGB;
 
-  hai::array<stbi::pixel> d{w * h};
-  GetDIBits(*dc, *bmp, 0, h, d.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
+  GetDIBits(*dc, *bmp, 0, h, data.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
             DIB_RGB_COLORS);
 
-  for (auto y = 0; y < h; y++) {
-    auto *rf = &d[y * w];
-    auto *rt = &data[(h - y - 1) * w];
-    for (auto x = 0; x < w; x++) {
-      rt[x] = rf[x];
-      rt[x].a = 255;
-    }
-  }
+  for (auto &r : data)
+    r.a = 255;
 }
 
 void boosh() {
