@@ -43,6 +43,8 @@ surface_t create_surface(unsigned w, unsigned h) {
       },
   };
   SelectObject(*(s->dc), *(s->bmp));
+  SetBkColor(*(s->dc), RGB(0, 0, 0));
+  SetTextColor(*(s->dc), RGB(255, 255, 255));
   return surface_t{s, [](auto x) { delete x; }};
 }
 } // namespace natty
@@ -60,8 +62,6 @@ void boosh(unsigned w, unsigned h, auto &data) {
   RECT rect = (*surf)->rect;
 
   SelectObject(*dc, *font);
-  SetBkColor(*dc, RGB(0, 0, 0));
-  SetTextColor(*dc, RGB(255, 255, 255));
   DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
 
   // TODO: Set position
