@@ -56,7 +56,7 @@ surface_t create_surface(unsigned w, unsigned h) {
 };
 } // namespace natty
 
-void boosh(auto &data, auto w, auto h) {
+void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
   auto font = natty::create_font("Helvetica", 48);
   auto surf = natty::create_surface(w, h);
 
@@ -68,13 +68,4 @@ void boosh(auto &data, auto w, auto h) {
   // TODO: adjust position to be top-down
   CGContextSetTextPosition(*ctx, 10, 20);
   CTLineDraw(*line, *ctx);
-}
-
-void boosh() {
-  unsigned w = 1024;
-  unsigned h = 1024;
-  hai::array<stbi::pixel> data{w * h};
-  boosh(data, w, h);
-
-  stbi::write_rgba("out/test.png", w, h, data);
 }

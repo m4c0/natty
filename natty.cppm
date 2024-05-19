@@ -6,6 +6,7 @@
 
 export module natty;
 import hai;
+import stubby;
 
 namespace natty {
 export struct font;
@@ -18,4 +19,4 @@ export surface_t create_surface(unsigned w, unsigned h);
 
 } // namespace natty
 
-export void boosh();
+export void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data);

@@ -49,7 +49,7 @@ surface_t create_surface(unsigned w, unsigned h) {
 }
 } // namespace natty
 
-void boosh(unsigned w, unsigned h, auto &data) {
+void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
   auto font = natty::create_font("Helvetica", 48);
   auto surf = natty::create_surface(w, h);
 
@@ -79,13 +79,4 @@ void boosh(unsigned w, unsigned h, auto &data) {
 
   for (auto &r : data)
     r.a = 255;
-}
-
-void boosh() {
-  unsigned w = 256;
-  unsigned h = 256;
-  hai::array<stbi::pixel> data{w * h};
-  boosh(w, h, data);
-
-  stbi::write_rgba("out/test.png", w, h, data);
 }
