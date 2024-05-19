@@ -32,16 +32,18 @@ struct surface {
   RECT rect;
 };
 surface_t create_surface(unsigned w, unsigned h) {
-  return surface_t{
-      new surface{.dc{CreateCompatibleDC(GetDC(nullptr))},
-                  .bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)},
-                  .rect{
-                      .left = 0,
-                      .top = 0,
-                      .right = static_cast<long>(w),
-                      .bottom = static_cast<long>(h),
-                  }},
-      [](auto x) { delete x; }};
+  auto s = new surface{
+      .dc{CreateCompatibleDC(GetDC(nullptr))},
+      .bmp{CreateCompatibleBitmap(GetDC(nullptr), w, h)},
+      .rect{
+          .left = 0,
+          .top = 0,
+          .right = static_cast<long>(w),
+          .bottom = static_cast<long>(h),
+      },
+  };
+  SelectObject(*(s->dc), *(s->bmp));
+  return surface_t{s, [](auto x) { delete x; }};
 }
 } // namespace natty
 
@@ -57,7 +59,6 @@ void boosh(unsigned w, unsigned h, auto &data) {
   ref<HBITMAP> &bmp = (*surf)->bmp;
   RECT rect = (*surf)->rect;
 
-  SelectObject(*dc, *bmp);
   SelectObject(*dc, *font);
   SetBkColor(*dc, RGB(0, 0, 0));
   SetTextColor(*dc, RGB(255, 255, 255));
