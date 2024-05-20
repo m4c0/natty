@@ -9,6 +9,7 @@ module;
 module natty;
 import hai;
 import stubby;
+import traits;
 
 namespace {
 struct deleter {
@@ -39,18 +40,20 @@ font_t create_font(const char *name, unsigned size) {
 }
 
 struct surface {
-  hai::array<stbi::pixel> data;
   ref<CGContextRef> ctx;
+  hai::array<stbi::pixel> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
 
+  hai::array<stbi::pixel> data{w * h};
+
   return surface_t{new surface{
-                       .data{w * h},
-                       .ctx = CGBitmapContextCreate(
+                       .ctx{CGBitmapContextCreate(
                            data.begin(), w, h, 8, w * 4, *colour_space,
-                           kCGImageAlphaPremultipliedLast),
+                           kCGImageAlphaPremultipliedLast)},
+                       .data{traits::move(data)},
                    },
                    [](auto x) { delete x; }};
 };
