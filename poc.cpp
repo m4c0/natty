@@ -10,7 +10,6 @@ int main() {
 
   unsigned w = 256;
   unsigned h = 256;
-  hai::array<stbi::pixel> data{w * h};
-  boosh(w, h, data);
-  stbi::write_rgba("out/test.png", w, h, data);
+  boosh(*surf, w, h);
+  stbi::write_rgba("out/test.png", w, h, natty::surface_data(*surf));
 }

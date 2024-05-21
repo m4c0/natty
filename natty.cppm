@@ -17,6 +17,8 @@ export struct surface;
 export using surface_t = hai::pimpl<surface *>;
 export surface_t create_surface(unsigned w, unsigned h);
 
+static_assert(sizeof(unsigned) == 4);
+export const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
 
-export void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data);
+export void boosh(natty::surface *, unsigned w, unsigned h);

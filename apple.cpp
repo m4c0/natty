@@ -41,13 +41,13 @@ font_t create_font(const char *name, unsigned size) {
 
 struct surface {
   ref<CGContextRef> ctx;
-  hai::array<stbi::pixel> data;
+  hai::array<unsigned> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
 
-  hai::array<stbi::pixel> data{w * h};
+  hai::array<unsigned> data{w * h};
 
   return surface_t{new surface{
                        .ctx{CGBitmapContextCreate(
@@ -57,11 +57,13 @@ surface_t create_surface(unsigned w, unsigned h) {
                    },
                    [](auto x) { delete x; }};
 };
+
+const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
 } // namespace natty
 
-void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
+void boosh(natty::surface *surf, unsigned w, unsigned h) {
   auto font = natty::create_font("Helvetica", 48);
-  auto surf = natty::create_surface(w, h);
+  auto &ctx = surf->ctx;
 
   ref<CFAttributedStringRef> attr_str{
       CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*font)->attrs)};
@@ -69,6 +71,6 @@ void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
   ref<CTLineRef> line{CTLineCreateWithAttributedString(*attr_str)};
 
   // TODO: adjust position to be top-down
-  CGContextSetTextPosition(*(*surf)->ctx, 10, 20);
-  CTLineDraw(*line, *(*surf)->ctx);
+  CGContextSetTextPosition(*ctx, 10, 20);
+  CTLineDraw(*line, *ctx);
 }

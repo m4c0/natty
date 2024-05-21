@@ -30,6 +30,7 @@ struct surface {
   ref<HDC> dc;
   ref<HBITMAP> bmp;
   RECT rect;
+  hai::array<unsigned> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   auto s = new surface{
@@ -41,30 +42,17 @@ surface_t create_surface(unsigned w, unsigned h) {
           .right = static_cast<long>(w),
           .bottom = static_cast<long>(h),
       },
+      .data{w * h},
   };
   SelectObject(*(s->dc), *(s->bmp));
   SetBkColor(*(s->dc), RGB(0, 0, 0));
   SetTextColor(*(s->dc), RGB(255, 255, 255));
   return surface_t{s, [](auto x) { delete x; }};
 }
-} // namespace natty
 
-void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
-  auto font = natty::create_font("Helvetica", 48);
-  auto surf = natty::create_surface(w, h);
-
-  constexpr const auto buf_size = 1024;
-  wchar_t buf[buf_size];
-  MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
-
-  ref<HDC> &dc = (*surf)->dc;
-  ref<HBITMAP> &bmp = (*surf)->bmp;
-  RECT rect = (*surf)->rect;
-
-  SelectObject(*dc, *font);
-  DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
-
-  // TODO: Set position
+const hai::array<unsigned> &surface_data(surface *s) {
+  ref<HDC> &dc = s->dc;
+  ref<HBITMAP> &bmp = s->bmp;
 
   BITMAPINFOHEADER bmi{};
   bmi.biSize = sizeof(BITMAPINFOHEADER);
@@ -77,6 +65,23 @@ void boosh(unsigned w, unsigned h, hai::array<stbi::pixel> &data) {
   GetDIBits(*dc, *bmp, 0, h, data.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
             DIB_RGB_COLORS);
 
-  for (auto &r : data)
-    r.a = 255;
+  for (auto &pix : s->data) {
+    pix |= 0xFF; // add alpha channel
+  }
+  return s->data;
+}
+} // namespace natty
+
+void boosh(natty::surface *surf, unsigned w, unsigned h) {
+  ref<HDC> &dc = surf->dc;
+  RECT rect = surf->rect;
+
+  constexpr const auto buf_size = 1024;
+  wchar_t buf[buf_size];
+  MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
+
+  SelectObject(*dc, *font);
+  DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
+
+  // TODO: Set position
 }
