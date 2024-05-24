@@ -66,6 +66,11 @@ void surface_font(surface *s, font *f) {
   s->line = ref<CTLineRef>{CTLineCreateWithAttributedString(*attr_str)};
 }
 
+void surface_position(surface *s, int x, int y) {
+  auto &ctx = surf->ctx;
+  CGContextSetTextPosition(*ctx, x, y);
+}
+
 const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
 } // namespace natty
 
@@ -74,6 +79,5 @@ void boosh(natty::surface *surf) {
   auto &line = surf->line;
 
   // TODO: adjust position to be top-down
-  CGContextSetTextPosition(*ctx, 10, 20);
   CTLineDraw(*line, *ctx);
 }

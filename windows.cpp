@@ -30,6 +30,7 @@ struct surface {
   ref<HDC> dc;
   ref<HBITMAP> bmp;
   RECT rect;
+  RECT stencil;
   hai::array<unsigned> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
@@ -53,6 +54,13 @@ surface_t create_surface(unsigned w, unsigned h) {
 void surface_font(surface *s, font *f) {
   ref<HDC> &dc = s->dc;
   SelectObject(*dc, f);
+}
+
+void surface_position(surface *s, int x, int y) {
+  RECT rect = s->rect;
+  rect.top = x;
+  rect.left = y;
+  s->stencil = rect;
 }
 
 const hai::array<unsigned> &surface_data(surface *s) {
@@ -82,9 +90,7 @@ const hai::array<unsigned> &surface_data(surface *s) {
 
 void boosh(natty::surface *surf) {
   ref<HDC> &dc = surf->dc;
-  RECT rect = surf->rect;
-  rect.top = 10;
-  rect.left = 20;
+  RECT rect = surf->stencil;
 
   constexpr const auto buf_size = 1024;
   wchar_t buf[buf_size];

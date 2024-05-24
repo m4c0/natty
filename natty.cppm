@@ -18,6 +18,7 @@ using surface_t = hai::pimpl<surface *>;
 surface_t create_surface(unsigned w, unsigned h);
 
 void surface_font(surface *, font *);
+void surface_position(surface *, int x, int y);
 
 static_assert(sizeof(unsigned) == 4);
 const hai::array<unsigned> &surface_data(surface *);
