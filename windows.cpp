@@ -54,16 +54,19 @@ const hai::array<unsigned> &surface_data(surface *s) {
   ref<HDC> &dc = s->dc;
   ref<HBITMAP> &bmp = s->bmp;
 
+  auto w = s->rect.right - s->rect.left;
+  auto h = s->rect.bottom - s->rect.top;
+
   BITMAPINFOHEADER bmi{};
   bmi.biSize = sizeof(BITMAPINFOHEADER);
   bmi.biWidth = w;
-  bmi.biHeight = -h;
+  bmi.biHeight = -h; // Secret API trick: negative flips Y
   bmi.biPlanes = 1;
   bmi.biBitCount = 32;
   bmi.biCompression = BI_RGB;
 
-  GetDIBits(*dc, *bmp, 0, h, data.begin(), reinterpret_cast<BITMAPINFO *>(&bmi),
-            DIB_RGB_COLORS);
+  GetDIBits(*dc, *bmp, 0, h, s->data.begin(),
+            reinterpret_cast<BITMAPINFO *>(&bmi), DIB_RGB_COLORS);
 
   for (auto &pix : s->data) {
     pix |= 0xFF; // add alpha channel
@@ -73,6 +76,8 @@ const hai::array<unsigned> &surface_data(surface *s) {
 } // namespace natty
 
 void boosh(natty::surface *surf, unsigned w, unsigned h) {
+  auto font = natty::create_font("Helvetica", 48);
+
   ref<HDC> &dc = surf->dc;
   RECT rect = surf->rect;
 
