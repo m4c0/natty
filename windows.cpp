@@ -80,6 +80,8 @@ void boosh(natty::surface *surf) {
 
   ref<HDC> &dc = surf->dc;
   RECT rect = surf->rect;
+  rect.top = 10;
+  rect.left = 20;
 
   constexpr const auto buf_size = 1024;
   wchar_t buf[buf_size];
@@ -87,6 +89,4 @@ void boosh(natty::surface *surf) {
 
   SelectObject(*dc, *font);
   DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
-
-  // TODO: Set position
 }
