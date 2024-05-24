@@ -69,7 +69,7 @@ const hai::array<unsigned> &surface_data(surface *s) {
             reinterpret_cast<BITMAPINFO *>(&bmi), DIB_RGB_COLORS);
 
   for (auto &pix : s->data) {
-    pix |= 0xFF; // add alpha channel
+    pix |= 0xFFU << 24; // add alpha channel
   }
   return s->data;
 }
