@@ -8,17 +8,17 @@ export module natty;
 import hai;
 import stubby;
 
-namespace natty {
-export struct font;
-export using font_t = hai::pimpl<font *>;
-export font_t create_font(const char *name, unsigned size);
+export namespace natty {
+struct font;
+using font_t = hai::pimpl<font *>;
+font_t create_font(const char *name, unsigned size);
 
-export struct surface;
-export using surface_t = hai::pimpl<surface *>;
-export surface_t create_surface(unsigned w, unsigned h);
+struct surface;
+using surface_t = hai::pimpl<surface *>;
+surface_t create_surface(unsigned w, unsigned h);
 
 static_assert(sizeof(unsigned) == 4);
-export const hai::array<unsigned> &surface_data(surface *);
+const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
 
 export void boosh(natty::surface *);
