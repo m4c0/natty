@@ -61,7 +61,7 @@ surface_t create_surface(unsigned w, unsigned h) {
 const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
 } // namespace natty
 
-void boosh(natty::surface *surf, unsigned w, unsigned h) {
+void boosh(natty::surface *surf) {
   auto font = natty::create_font("Helvetica", 48);
   auto &ctx = surf->ctx;
 

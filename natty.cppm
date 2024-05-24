@@ -21,4 +21,4 @@ static_assert(sizeof(unsigned) == 4);
 export const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
 
-export void boosh(natty::surface *, unsigned w, unsigned h);
+export void boosh(natty::surface *);
