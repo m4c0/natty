@@ -6,6 +6,7 @@
 
 export module natty;
 import hai;
+import jute;
 import stubby;
 
 export namespace natty {
@@ -20,8 +21,8 @@ surface_t create_surface(unsigned w, unsigned h);
 void surface_font(surface *, font *);
 void surface_position(surface *, int x, int y);
 
+void draw(surface *, jute::view str);
+
 static_assert(sizeof(unsigned) == 4);
 const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
-
-export void boosh(natty::surface *);

@@ -71,13 +71,13 @@ void surface_position(surface *s, int x, int y) {
   CGContextSetTextPosition(*ctx, x, y);
 }
 
-const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
-} // namespace natty
-
-void boosh(natty::surface *surf) {
+void draw(natty::surface *surf, jute::view str) {
   auto &ctx = surf->ctx;
   auto &line = surf->line;
 
   // TODO: adjust position to be top-down
   CTLineDraw(*line, *ctx);
 }
+
+const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
+} // namespace natty

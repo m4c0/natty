@@ -63,6 +63,17 @@ void surface_position(surface *s, int x, int y) {
   s->stencil = rect;
 }
 
+void draw(natty::surface *surf, jute::view str) {
+  ref<HDC> &dc = surf->dc;
+  RECT rect = surf->stencil;
+
+  hai::array<wchar_t> buf{static_cast<unsigned>(str.size())};
+  MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), buf.begin(),
+                      buf.size());
+
+  DrawTextW(*dc, buf.begin(), buf.size(), &rect, DT_SINGLELINE);
+}
+
 const hai::array<unsigned> &surface_data(surface *s) {
   ref<HDC> &dc = s->dc;
   ref<HBITMAP> &bmp = s->bmp;
@@ -87,14 +98,3 @@ const hai::array<unsigned> &surface_data(surface *s) {
   return s->data;
 }
 } // namespace natty
-
-void boosh(natty::surface *surf) {
-  ref<HDC> &dc = surf->dc;
-  RECT rect = surf->stencil;
-
-  constexpr const auto buf_size = 1024;
-  wchar_t buf[buf_size];
-  MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
-
-  DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
-}
