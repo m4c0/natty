@@ -50,6 +50,11 @@ surface_t create_surface(unsigned w, unsigned h) {
   return surface_t{s, [](auto x) { delete x; }};
 }
 
+void surface_font(surface *s, font *f) {
+  ref<HDC> &dc = s->dc;
+  SelectObject(*dc, f);
+}
+
 const hai::array<unsigned> &surface_data(surface *s) {
   ref<HDC> &dc = s->dc;
   ref<HBITMAP> &bmp = s->bmp;
@@ -76,8 +81,6 @@ const hai::array<unsigned> &surface_data(surface *s) {
 } // namespace natty
 
 void boosh(natty::surface *surf) {
-  auto font = natty::create_font("Helvetica", 48);
-
   ref<HDC> &dc = surf->dc;
   RECT rect = surf->rect;
   rect.top = 10;
@@ -87,6 +90,5 @@ void boosh(natty::surface *surf) {
   wchar_t buf[buf_size];
   MultiByteToWideChar(CP_UTF8, 0, "Olá!", -1, buf, buf_size);
 
-  SelectObject(*dc, *font);
   DrawTextW(*dc, buf, -1, &rect, DT_SINGLELINE);
 }

@@ -41,6 +41,7 @@ font_t create_font(const char *name, unsigned size) {
 
 struct surface {
   ref<CGContextRef> ctx;
+  ref<CTLineRef> line{};
   hai::array<unsigned> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
@@ -58,17 +59,19 @@ surface_t create_surface(unsigned w, unsigned h) {
                    [](auto x) { delete x; }};
 };
 
+void surface_font(surface *s, font *f) {
+  ref<CFAttributedStringRef> attr_str{
+      CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*font)->attrs)};
+
+  s->line = ref<CTLineRef>{CTLineCreateWithAttributedString(*attr_str)};
+}
+
 const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
 } // namespace natty
 
 void boosh(natty::surface *surf) {
-  auto font = natty::create_font("Helvetica", 48);
   auto &ctx = surf->ctx;
-
-  ref<CFAttributedStringRef> attr_str{
-      CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*font)->attrs)};
-
-  ref<CTLineRef> line{CTLineCreateWithAttributedString(*attr_str)};
+  auto &line = surf->line;
 
   // TODO: adjust position to be top-down
   CGContextSetTextPosition(*ctx, 10, 20);

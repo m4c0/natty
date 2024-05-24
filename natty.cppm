@@ -17,6 +17,8 @@ struct surface;
 using surface_t = hai::pimpl<surface *>;
 surface_t create_surface(unsigned w, unsigned h);
 
+void surface_font(surface *, font *);
+
 static_assert(sizeof(unsigned) == 4);
 const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
