@@ -41,8 +41,8 @@ font_t create_font(const char *name, unsigned size) {
 
 struct surface {
   ref<CGContextRef> ctx;
-  ref<CTLineRef> line{};
   hai::array<unsigned> data;
+  font * fnt;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
@@ -60,10 +60,7 @@ surface_t create_surface(unsigned w, unsigned h) {
 };
 
 void surface_font(surface *s, font *f) {
-  ref<CFAttributedStringRef> attr_str{
-      CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*f).attrs)};
-
-  s->line = ref<CTLineRef>{CTLineCreateWithAttributedString(*attr_str)};
+  s->fnt = f;
 }
 
 void surface_position(surface *s, int x, int y) {
@@ -73,7 +70,13 @@ void surface_position(surface *s, int x, int y) {
 
 void draw(natty::surface *surf, jute::view str) {
   auto &ctx = surf->ctx;
-  auto &line = surf->line;
+  auto f = surf->fnt;
+
+  ref<CFAttributedStringRef> attr_str {
+    CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*f).attrs)
+  };
+
+  ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
 
   // TODO: adjust position to be top-down
   CTLineDraw(*line, *ctx);
