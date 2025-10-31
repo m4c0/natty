@@ -72,8 +72,12 @@ void draw(natty::surface *surf, jute::view str) {
   auto &ctx = surf->ctx;
   auto f = surf->fnt;
 
+  CFStringRef cfstr = CFStringCreateWithBytesNoCopy(
+      nullptr, reinterpret_cast<const UInt8 *>(str.begin()), str.size(),
+      kCFStringEncodingUTF8, false, kCFAllocatorNull);
+
   ref<CFAttributedStringRef> attr_str {
-    CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*f).attrs)
+    CFAttributedStringCreate(nullptr, cfstr, *(*f).attrs)
   };
 
   ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
