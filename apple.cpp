@@ -61,13 +61,13 @@ surface_t create_surface(unsigned w, unsigned h) {
 
 void surface_font(surface *s, font *f) {
   ref<CFAttributedStringRef> attr_str{
-      CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*font)->attrs)};
+      CFAttributedStringCreate(nullptr, CFSTR("Olá!"), *(*f).attrs)};
 
   s->line = ref<CTLineRef>{CTLineCreateWithAttributedString(*attr_str)};
 }
 
 void surface_position(surface *s, int x, int y) {
-  auto &ctx = surf->ctx;
+  auto &ctx = s->ctx;
   CGContextSetTextPosition(*ctx, x, y);
 }
 

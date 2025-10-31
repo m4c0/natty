@@ -1,4 +1,4 @@
-#pragma leco tool
+#pragma leco test
 
 import hai;
 import natty;
