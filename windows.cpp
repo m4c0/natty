@@ -68,8 +68,7 @@ void draw(natty::surface *surf, jute::view str) {
   RECT rect = surf->stencil;
 
   hai::array<wchar_t> buf{static_cast<unsigned>(str.size())};
-  MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), buf.begin(),
-                      buf.size());
+  MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), buf.begin(), buf.size());
 
   DrawTextW(*dc, buf.begin(), buf.size(), &rect, DT_SINGLELINE);
 }
