@@ -7,13 +7,19 @@ import stubby;
 int main() {
   auto font = natty::create_font("Arial", 32);
   auto surf = natty::create_surface(256, 256);
-  natty::surface_font(*surf, *font);
 
-  natty::surface_position(*surf, 40, 10);
-  natty::draw(*surf, "Olá, tudo bem?");
-
-  natty::surface_position(*surf, 0, 0);
-  natty::draw(*surf, ".");
+  natty::draw({
+    .surface = surf,
+    .font = font,
+    .position { 40, 10 },
+    .text = "Olá, tudo bem?",
+  });
+  natty::draw({
+    .surface = surf,
+    .font = font,
+    .position { 0, 0 },
+    .text = ".",
+  });
 
   stbi::write_rgba("out/test.png", 256, 256, natty::surface_data(*surf));
 }

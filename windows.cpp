@@ -30,7 +30,6 @@ struct surface {
   ref<HDC> dc;
   ref<HBITMAP> bmp;
   RECT rect;
-  RECT stencil;
   hai::array<unsigned> data;
 };
 surface_t create_surface(unsigned w, unsigned h) {
@@ -51,24 +50,16 @@ surface_t create_surface(unsigned w, unsigned h) {
   return surface_t{s, [](auto x) { delete x; }};
 }
 
-void surface_font(surface *s, font *f) {
-  ref<HDC> &dc = s->dc;
-  SelectObject(*dc, f);
-}
+void draw(const draw_params & p) {
+  ref<HDC> & dc = (*p.surface)->dc;
+  SelectObject(*dc, *p.font);
 
-void surface_position(surface *s, int x, int y) {
-  RECT rect = s->rect;
-  rect.top = x;
-  rect.left = y;
-  s->stencil = rect;
-}
+  RECT rect = (*p.surface)->rect;
+  rect.top = p.position.x;
+  rect.left = p.position.y;
 
-void draw(natty::surface *surf, jute::view str) {
-  ref<HDC> &dc = surf->dc;
-  RECT rect = surf->stencil;
-
-  hai::array<wchar_t> buf{static_cast<unsigned>(str.size())};
-  MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), buf.begin(), buf.size());
+  hai::array<wchar_t> buf{static_cast<unsigned>(p.text.size())};
+  MultiByteToWideChar(CP_UTF8, 0, p.text.data(), p.text.size(), buf.begin(), buf.size());
 
   DrawTextW(*dc, buf.begin(), buf.size(), &rect, DT_SINGLELINE);
 }

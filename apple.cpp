@@ -42,7 +42,6 @@ font_t create_font(const char *name, unsigned size) {
 struct surface {
   ref<CGContextRef> ctx;
   hai::array<unsigned> data;
-  font * fnt;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
@@ -59,25 +58,16 @@ surface_t create_surface(unsigned w, unsigned h) {
                    [](auto x) { delete x; }};
 };
 
-void surface_font(surface *s, font *f) {
-  s->fnt = f;
-}
-
-void surface_position(surface *s, int x, int y) {
-  auto &ctx = s->ctx;
-  CGContextSetTextPosition(*ctx, x, y);
-}
-
-void draw(natty::surface *surf, jute::view str) {
-  auto &ctx = surf->ctx;
-  auto f = surf->fnt;
+void draw(const draw_params & p) {
+  auto & ctx = (*p.surface)->ctx;
+  CGContextSetTextPosition(*ctx, p.position.x, p.position.y);
 
   CFStringRef cfstr = CFStringCreateWithBytesNoCopy(
       nullptr, reinterpret_cast<const UInt8 *>(str.begin()), str.size(),
       kCFStringEncodingUTF8, false, kCFAllocatorNull);
 
   ref<CFAttributedStringRef> attr_str {
-    CFAttributedStringCreate(nullptr, cfstr, *(*f).attrs)
+    CFAttributedStringCreate(nullptr, cfstr, *(*p.font).attrs)
   };
 
   ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
