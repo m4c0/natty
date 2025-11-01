@@ -12,5 +12,8 @@ int main() {
   natty::surface_position(*surf, 40, 10);
   natty::draw(*surf, "Olá, tudo bem?");
 
+  natty::surface_position(*surf, 0, 0);
+  natty::draw(*surf, ".");
+
   stbi::write_rgba("out/test.png", 256, 256, natty::surface_data(*surf));
 }
