@@ -24,6 +24,7 @@ namespace natty {
 struct font {
   ref<CTFontRef> font;
   ref<CFMutableDictionaryRef> attrs;
+  unsigned h;
 };
 font_t create_font(const char * name, unsigned size) {
   CFStringRef cfname = CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull);
@@ -45,6 +46,7 @@ font_t create_font(const char * name, unsigned size) {
 struct surface {
   ref<CGContextRef> ctx;
   hai::array<unsigned> data;
+  unsigned h;
 };
 surface_t create_surface(unsigned w, unsigned h) {
   ref<CGColorSpaceRef> colour_space{
@@ -57,13 +59,15 @@ surface_t create_surface(unsigned w, unsigned h) {
                            data.begin(), w, h, 8, w * 4, *colour_space,
                            kCGImageAlphaPremultipliedLast)},
                        .data{traits::move(data)},
+                       .h = h,
                    },
                    [](auto x) { delete x; }};
 };
 
 void draw(const draw_params & p) {
+  auto h = (*p.surface)->h;
   auto & ctx = (*p.surface)->ctx;
-  CGContextSetTextPosition(*ctx, p.position.x, p.position.y);
+  CGContextSetTextPosition(*ctx, p.position.x, h - p.position.y - (*p.font)->h);
 
   CFStringRef cfstr = CFStringCreateWithBytesNoCopy(
       nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
