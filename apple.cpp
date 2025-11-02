@@ -63,11 +63,11 @@ void draw(const draw_params & p) {
   CGContextSetTextPosition(*ctx, p.position.x, p.position.y);
 
   CFStringRef cfstr = CFStringCreateWithBytesNoCopy(
-      nullptr, reinterpret_cast<const UInt8 *>(str.begin()), str.size(),
+      nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
       kCFStringEncodingUTF8, false, kCFAllocatorNull);
 
   ref<CFAttributedStringRef> attr_str {
-    CFAttributedStringCreate(nullptr, cfstr, *(*p.font).attrs)
+    CFAttributedStringCreate(nullptr, cfstr, *(*p.font)->attrs)
   };
 
   ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
