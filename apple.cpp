@@ -25,12 +25,15 @@ struct font {
   ref<CTFontRef> font;
   ref<CFMutableDictionaryRef> attrs;
 };
-font_t create_font(const char *name, unsigned size) {
+font_t create_font(const char * name, unsigned size) {
+  CFStringRef cfname = CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull);
+
   auto f = new font{
-      .font{CTFontCreateWithName(CFSTR("Helvetica"), 48, nullptr)},
+      .font{CTFontCreateWithName(cfname, size, nullptr)},
       .attrs{CFDictionaryCreateMutable(nullptr, 2,
                                        &kCFTypeDictionaryKeyCallBacks,
                                        &kCFTypeDictionaryValueCallBacks)},
+      .h = size,
   };
 
   CFDictionaryAddValue(*f->attrs, kCTFontAttributeName, *f->font);
