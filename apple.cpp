@@ -23,63 +23,69 @@ namespace {
 }
 
 namespace natty {
-struct font {
-  ct_font font;
-  cf_dict attrs;
-  unsigned h;
-};
-
-font_t create_font(const char * name, unsigned size) {
-  cf_str cfname { CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull) };
-
-  auto f = new font{
-      .font{CTFontCreateWithName(cfname, size, nullptr)},
-      .attrs{CFDictionaryCreateMutable(nullptr, 2,
-                                       &kCFTypeDictionaryKeyCallBacks,
-                                       &kCFTypeDictionaryValueCallBacks)},
-      .h = size,
+  struct font {
+    ct_font font;
+    cf_dict attrs;
+    unsigned h;
   };
 
-  CFDictionaryAddValue(f->attrs, kCTFontAttributeName, f->font);
-  CFDictionaryAddValue(f->attrs, kCTForegroundColorAttributeName, CGColorGetConstantColor(kCGColorWhite));
-  return font_t{f, [](auto x) { delete x; }};
-}
+  font_t create_font(const char * name, unsigned size) {
+    cf_str cfname { CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull) };
 
-struct surface {
-  cg_ctx ctx;
-  hai::array<unsigned> data;
-  unsigned h;
-};
-surface_t create_surface(unsigned w, unsigned h) {
-  cg_colour_space colour_space { CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB) };
+    auto fnt = CTFontCreateWithName(cfname, size, nullptr);
 
-  hai::array<unsigned> data{w * h};
+    auto attrs = CFDictionaryCreateMutable(nullptr, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryAddValue(attrs, kCTFontAttributeName, fnt);
+    CFDictionaryAddValue(attrs, kCTForegroundColorAttributeName, CGColorGetConstantColor(kCGColorWhite));
+  
+    return font_t {
+      new font {
+        .font { fnt },
+        .attrs { attrs },
+        .h = size,
+      },
+      [](auto x) { delete x; }
+    };
+  }
 
-  return surface_t{new surface{
-                       .ctx{CGBitmapContextCreate(
-                           data.begin(), w, h, 8, w * 4, colour_space,
-                           kCGImageAlphaPremultipliedLast)},
-                       .data{traits::move(data)},
-                       .h = h,
-                   },
-                   [](auto x) { delete x; }};
-};
+  struct surface {
+    cg_ctx ctx;
+    hai::array<unsigned> data;
+    unsigned h;
+  };
+  surface_t create_surface(unsigned w, unsigned h) {
+    cg_colour_space colour_space { CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB) };
 
-void draw(const draw_params & p) {
-  auto h = (*p.surface)->h;
-  auto & ctx = (*p.surface)->ctx;
-  CGContextSetTextPosition(ctx, p.position.x, h - p.position.y - (*p.font)->h);
+    hai::array<unsigned> data { w * h };
+    auto ctx = CGBitmapContextCreate(
+        data.begin(), w, h, 8, w * 4, colour_space,
+        kCGImageAlphaPremultipliedLast);
 
-  cf_str cfstr {
-    CFStringCreateWithBytesNoCopy(
-      nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
-      kCFStringEncodingUTF8, false, kCFAllocatorNull)
+    return surface_t {
+      new surface {
+        .ctx { ctx },
+        .data { traits::move(data) },
+        .h = h,
+      },
+      [](auto x) { delete x; }
+    };
   };
 
-  cf_attr_str attr_str { CFAttributedStringCreate(nullptr, cfstr, (*p.font)->attrs) };
-  ct_line line { CTLineCreateWithAttributedString(attr_str) };
-  CTLineDraw(line, ctx);
-}
+  void draw(const draw_params & p) {
+    auto h = (*p.surface)->h;
+    auto & ctx = (*p.surface)->ctx;
+    CGContextSetTextPosition(ctx, p.position.x, h - p.position.y - (*p.font)->h);
 
-const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
-} // namespace natty
+    cf_str cfstr {
+      CFStringCreateWithBytesNoCopy(
+          nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
+          kCFStringEncodingUTF8, false, kCFAllocatorNull)
+    };
+
+    cf_attr_str attr_str { CFAttributedStringCreate(nullptr, cfstr, (*p.font)->attrs) };
+    ct_line line { CTLineCreateWithAttributedString(attr_str) };
+    CTLineDraw(line, ctx);
+  }
+
+  const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
+}
