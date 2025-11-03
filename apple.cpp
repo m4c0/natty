@@ -13,16 +13,14 @@ import stubby;
 import traits;
 
 namespace {
-struct deleter {
-  void operator()(CGColorSpaceRef r) { CGColorSpaceRelease(r); }
-  void operator()(CGContextRef r) { CGContextRelease(r); }
-  void operator()(CFTypeRef r) { CFRelease(r); }
-};
-template <typename T> using ref = hai::value_holder<T, deleter>;
-
-  using cf_dict = hay<CFMutableDictionaryRef, nullptr, CFRelease>;
-  using ct_font = hay<CTFontRef, nullptr, CFRelease>;
-} // namespace
+  using cf_attr_str     = hay<CFAttributedStringRef, nullptr, CFRelease>;
+  using cg_colour_space = hay<CGColorSpaceRef, nullptr, CGColorSpaceRelease>;
+  using cg_ctx          = hay<CGContextRef, nullptr, CGContextRelease>;
+  using cf_dict         = hay<CFMutableDictionaryRef, nullptr, CFRelease>;
+  using ct_font         = hay<CTFontRef, nullptr, CFRelease>;
+  using ct_line         = hay<CTLineRef, nullptr, CFRelease>;
+  using cf_str          = hay<CFStringRef, nullptr, CFRelease>;
+}
 
 namespace natty {
 struct font {
@@ -30,8 +28,9 @@ struct font {
   cf_dict attrs;
   unsigned h;
 };
+
 font_t create_font(const char * name, unsigned size) {
-  CFStringRef cfname = CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull);
+  cf_str cfname { CFStringCreateWithCStringNoCopy(nullptr, name, kCFStringEncodingUTF8, kCFAllocatorNull) };
 
   auto f = new font{
       .font{CTFontCreateWithName(cfname, size, nullptr)},
@@ -47,18 +46,18 @@ font_t create_font(const char * name, unsigned size) {
 }
 
 struct surface {
-  ref<CGContextRef> ctx;
+  cg_ctx ctx;
   hai::array<unsigned> data;
   unsigned h;
 };
 surface_t create_surface(unsigned w, unsigned h) {
-  ref<CGColorSpaceRef> colour_space { CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB) };
+  cg_colour_space colour_space { CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB) };
 
   hai::array<unsigned> data{w * h};
 
   return surface_t{new surface{
                        .ctx{CGBitmapContextCreate(
-                           data.begin(), w, h, 8, w * 4, *colour_space,
+                           data.begin(), w, h, 8, w * 4, colour_space,
                            kCGImageAlphaPremultipliedLast)},
                        .data{traits::move(data)},
                        .h = h,
@@ -69,20 +68,17 @@ surface_t create_surface(unsigned w, unsigned h) {
 void draw(const draw_params & p) {
   auto h = (*p.surface)->h;
   auto & ctx = (*p.surface)->ctx;
-  CGContextSetTextPosition(*ctx, p.position.x, h - p.position.y - (*p.font)->h);
+  CGContextSetTextPosition(ctx, p.position.x, h - p.position.y - (*p.font)->h);
 
-  ref<CFStringRef> cfstr { CFStringCreateWithBytesNoCopy(
+  cf_str cfstr {
+    CFStringCreateWithBytesNoCopy(
       nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
-      kCFStringEncodingUTF8, false, kCFAllocatorNull) };
-
-  ref<CFAttributedStringRef> attr_str {
-    CFAttributedStringCreate(nullptr, *cfstr, (*p.font)->attrs)
+      kCFStringEncodingUTF8, false, kCFAllocatorNull)
   };
 
-  ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
-
-  // TODO: adjust position to be top-down
-  CTLineDraw(*line, *ctx);
+  cf_attr_str attr_str { CFAttributedStringCreate(nullptr, cfstr, (*p.font)->attrs) };
+  ct_line line { CTLineCreateWithAttributedString(attr_str) };
+  CTLineDraw(line, ctx);
 }
 
 const hai::array<unsigned> &surface_data(surface *s) { return s->data; }
