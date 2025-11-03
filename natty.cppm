@@ -11,22 +11,22 @@ import jute;
 import stubby;
 
 export namespace natty {
-struct font;
-using font_t = hai::pimpl<font *>;
-font_t create_font(const char *name, unsigned size);
+  struct font;
+  using font_t = hai::pimpl<font *>;
+  font_t create_font(const char *name, unsigned size);
 
-struct surface;
-using surface_t = hai::pimpl<surface *>;
-surface_t create_surface(unsigned w, unsigned h);
+  struct surface;
+  using surface_t = hai::pimpl<surface *>;
+  surface_t create_surface(unsigned w, unsigned h);
 
-struct draw_params {
-  surface_t & surface;
-  font_t & font;
-  dotz::ivec2 position;
-  jute::view text;
-};
-void draw(const draw_params & cmd);
+  struct draw_params {
+    surface_t & surface;
+    font_t & font;
+    dotz::ivec2 position;
+    jute::view text;
+  };
+  void draw(const draw_params & cmd);
 
-static_assert(sizeof(unsigned) == 4);
-const hai::array<unsigned> &surface_data(surface *);
+  static_assert(sizeof(unsigned) == 4);
+  const hai::array<unsigned> &surface_data(surface *);
 } // namespace natty
