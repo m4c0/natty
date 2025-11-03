@@ -8,6 +8,7 @@ module;
 
 module natty;
 import hai;
+import hay;
 import stubby;
 import traits;
 
@@ -18,12 +19,15 @@ struct deleter {
   void operator()(CFTypeRef r) { CFRelease(r); }
 };
 template <typename T> using ref = hai::value_holder<T, deleter>;
+
+  using cf_dict = hay<CFMutableDictionaryRef, nullptr, CFRelease>;
+  using ct_font = hay<CTFontRef, nullptr, CFRelease>;
 } // namespace
 
 namespace natty {
 struct font {
-  ref<CTFontRef> font;
-  ref<CFMutableDictionaryRef> attrs;
+  ct_font font;
+  cf_dict attrs;
   unsigned h;
 };
 font_t create_font(const char * name, unsigned size) {
@@ -37,9 +41,8 @@ font_t create_font(const char * name, unsigned size) {
       .h = size,
   };
 
-  CFDictionaryAddValue(*f->attrs, kCTFontAttributeName, *f->font);
-  CFDictionaryAddValue(*f->attrs, kCTForegroundColorAttributeName,
-                       CGColorGetConstantColor(kCGColorWhite));
+  CFDictionaryAddValue(f->attrs, kCTFontAttributeName, f->font);
+  CFDictionaryAddValue(f->attrs, kCTForegroundColorAttributeName, CGColorGetConstantColor(kCGColorWhite));
   return font_t{f, [](auto x) { delete x; }};
 }
 
@@ -49,8 +52,7 @@ struct surface {
   unsigned h;
 };
 surface_t create_surface(unsigned w, unsigned h) {
-  ref<CGColorSpaceRef> colour_space{
-      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB)};
+  ref<CGColorSpaceRef> colour_space { CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB) };
 
   hai::array<unsigned> data{w * h};
 
@@ -69,12 +71,12 @@ void draw(const draw_params & p) {
   auto & ctx = (*p.surface)->ctx;
   CGContextSetTextPosition(*ctx, p.position.x, h - p.position.y - (*p.font)->h);
 
-  CFStringRef cfstr = CFStringCreateWithBytesNoCopy(
+  ref<CFStringRef> cfstr { CFStringCreateWithBytesNoCopy(
       nullptr, reinterpret_cast<const UInt8 *>(p.text.begin()), p.text.size(),
-      kCFStringEncodingUTF8, false, kCFAllocatorNull);
+      kCFStringEncodingUTF8, false, kCFAllocatorNull) };
 
   ref<CFAttributedStringRef> attr_str {
-    CFAttributedStringCreate(nullptr, cfstr, *(*p.font)->attrs)
+    CFAttributedStringCreate(nullptr, *cfstr, (*p.font)->attrs)
   };
 
   ref<CTLineRef> line { CTLineCreateWithAttributedString(*attr_str) };
