@@ -5,6 +5,7 @@ module;
 #include <windows.h>
 
 module natty;
+import dotz;
 import hai;
 import hay;
 import stubby;
@@ -26,19 +27,14 @@ namespace natty {
   struct surface {
     hdc dc;
     hbitmap bmp;
-    RECT rect;
+    dotz::ivec2 size;
     hai::array<unsigned> data;
   };
   surface_t create_surface(unsigned w, unsigned h) {
     auto s = new surface {
       .dc { CreateCompatibleDC(GetDC(nullptr)) },
       .bmp { CreateCompatibleBitmap(GetDC(nullptr), w, h) },
-      .rect {
-        .left = 0,
-        .top = 0,
-        .right = static_cast<long>(w),
-        .bottom = static_cast<long>(h),
-      },
+      .size { w, h },
       .data { w * h },
     };
     SelectObject(s->dc, static_cast<HBITMAP>(s->bmp));
@@ -51,9 +47,13 @@ namespace natty {
     HDC dc = (*p.surface)->dc;
     SelectObject(dc, *p.font);
 
-    RECT rect = (*p.surface)->rect;
-    rect.top = p.position.x;
-    rect.left = p.position.y;
+    auto [w, h] = (*p.surface)->size;
+    RECT rect {
+      .left = p.position.y,
+      .top = p.position.x,
+      .right = p.position.y + h,
+      .bottom = p.position.x + w,
+    };
 
     hai::array<wchar_t> buf { static_cast<unsigned>(p.text.size()) };
     MultiByteToWideChar(CP_UTF8, 0, p.text.data(), p.text.size(), buf.begin(), buf.size());
@@ -62,18 +62,15 @@ namespace natty {
   }
 
   const hai::array<unsigned> & surface_data(surface * s) {
-    auto w = s->rect.right - s->rect.left;
-    auto h = s->rect.bottom - s->rect.top;
-
     BITMAPINFOHEADER bmi{};
     bmi.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.biWidth = w;
-    bmi.biHeight = -h; // Secret API trick: negative flips Y
+    bmi.biWidth = s->size.x;
+    bmi.biHeight = -s->size.y; // Secret API trick: negative flips Y
     bmi.biPlanes = 1;
     bmi.biBitCount = 32;
     bmi.biCompression = BI_RGB;
 
-    GetDIBits(s->dc, s->bmp, 0, h, s->data.begin(),
+    GetDIBits(s->dc, s->bmp, 0, s->size.y, s->data.begin(),
         reinterpret_cast<BITMAPINFO *>(&bmi), DIB_RGB_COLORS);
 
     for (auto &pix : s->data) pix |= 0xFFU << 24; // add alpha channel
