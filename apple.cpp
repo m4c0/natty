@@ -51,6 +51,7 @@ namespace natty {
   struct surface {
     cg_ctx ctx;
     hai::array<unsigned> data;
+    unsigned w;
     unsigned h;
   };
   surface_t create_surface(unsigned w, unsigned h) {
@@ -65,11 +66,17 @@ namespace natty {
       new surface {
         .ctx { ctx },
         .data { traits::move(data) },
+        .w = w,
         .h = h,
       },
       [](auto x) { delete x; }
     };
   };
+
+  void clear(surface_t & s) {
+    auto rect = CGRectMake(0, 0, (*s)->w, (*s)->h);
+    CGContextClearRect((*s)->ctx, rect);
+  }
 
   void draw(const draw_params & p) {
     auto h = (*p.surface)->h;

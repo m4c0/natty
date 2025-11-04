@@ -8,6 +8,8 @@ int main() {
   auto font = natty::create_font("Arial", 32);
   auto surf = natty::create_surface(256, 256);
 
+  natty::clear(surf);
+
   natty::draw({
     .surface = surf,
     .font = font,

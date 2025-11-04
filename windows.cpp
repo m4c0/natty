@@ -42,6 +42,19 @@ namespace natty {
     return surface_t{s, [](auto x) { delete x; }};
   }
 
+  void clear(surface_t & s) {
+    auto [w, h] = (*s)->size;
+    RECT rect {
+      .left = 0,
+      .top = 0,
+      .right = w,
+      .bottom = h,
+    };
+
+    HDC dc = (*s)->dc;
+    FillRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+  }
+
   void draw(const draw_params & p) {
     HDC dc = (*p.surface)->dc;
     SelectObject(dc, *p.font);
