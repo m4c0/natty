@@ -8,7 +8,6 @@ module natty;
 import dotz;
 import hai;
 import hay;
-import stubby;
 
 namespace {
   using hbitmap = hay<HBITMAP, nullptr, DeleteObject>;
@@ -49,10 +48,10 @@ namespace natty {
 
     auto [w, h] = (*p.surface)->size;
     RECT rect {
-      .left = p.position.y,
-      .top = p.position.x,
-      .right = p.position.y + h,
-      .bottom = p.position.x + w,
+      .left = p.position.x,
+      .top = p.position.y,
+      .right = w,
+      .bottom = h,
     };
 
     hai::array<wchar_t> buf { static_cast<unsigned>(p.text.size()) };
