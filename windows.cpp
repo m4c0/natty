@@ -6,11 +6,14 @@ module;
 
 module natty;
 import hai;
+import hay;
 import stubby;
 
 namespace {
+  using hbitmap = hay<HBITMAP, nullptr, DeleteObject>;
+  using hdc     = hay<HDC,     nullptr, DeleteDC>;
+
 struct deleter {
-  void operator()(HDC h) { DeleteDC(h); }
   void operator()(HGDIOBJ h) { DeleteObject(h); }
 };
 
@@ -27,8 +30,8 @@ font_t create_font(const char *name, unsigned size){
 }
 
 struct surface {
-  ref<HDC> dc;
-  ref<HBITMAP> bmp;
+  hdc dc;
+  hbitmap bmp;
   RECT rect;
   hai::array<unsigned> data;
 };
@@ -44,15 +47,15 @@ surface_t create_surface(unsigned w, unsigned h) {
       },
       .data{w * h},
   };
-  SelectObject(*(s->dc), *(s->bmp));
-  SetBkColor(*(s->dc), RGB(0, 0, 0));
-  SetTextColor(*(s->dc), RGB(255, 255, 255));
+  SelectObject(s->dc, static_cast<HBITMAP>(s->bmp));
+  SetBkColor(s->dc, RGB(0, 0, 0));
+  SetTextColor(s->dc, RGB(255, 255, 255));
   return surface_t{s, [](auto x) { delete x; }};
 }
 
 void draw(const draw_params & p) {
-  ref<HDC> & dc = (*p.surface)->dc;
-  SelectObject(*dc, *p.font);
+  HDC dc = (*p.surface)->dc;
+  SelectObject(dc, *p.font);
 
   RECT rect = (*p.surface)->rect;
   rect.top = p.position.x;
@@ -61,12 +64,12 @@ void draw(const draw_params & p) {
   hai::array<wchar_t> buf{static_cast<unsigned>(p.text.size())};
   MultiByteToWideChar(CP_UTF8, 0, p.text.data(), p.text.size(), buf.begin(), buf.size());
 
-  DrawTextW(*dc, buf.begin(), buf.size(), &rect, DT_SINGLELINE);
+  DrawTextW(dc, buf.begin(), buf.size(), &rect, DT_SINGLELINE);
 }
 
 const hai::array<unsigned> &surface_data(surface *s) {
-  ref<HDC> &dc = s->dc;
-  ref<HBITMAP> &bmp = s->bmp;
+  HDC dc = s->dc;
+  HBITMAP bmp = s->bmp;
 
   auto w = s->rect.right - s->rect.left;
   auto h = s->rect.bottom - s->rect.top;
@@ -79,7 +82,7 @@ const hai::array<unsigned> &surface_data(surface *s) {
   bmi.biBitCount = 32;
   bmi.biCompression = BI_RGB;
 
-  GetDIBits(*dc, *bmp, 0, h, s->data.begin(),
+  GetDIBits(dc, bmp, 0, h, s->data.begin(),
             reinterpret_cast<BITMAPINFO *>(&bmi), DIB_RGB_COLORS);
 
   for (auto &pix : s->data) {
