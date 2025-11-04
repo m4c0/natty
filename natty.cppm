@@ -19,7 +19,7 @@ export namespace natty {
   using surface_t = hai::pimpl<surface *>;
   surface_t create_surface(unsigned w, unsigned h);
 
-  void clear(surface_t & s);
+  void clear(surface * s);
 
   struct draw_params {
     surface * surface;

@@ -73,9 +73,9 @@ namespace natty {
     };
   };
 
-  void clear(surface_t & s) {
-    auto rect = CGRectMake(0, 0, (*s)->w, (*s)->h);
-    CGContextClearRect((*s)->ctx, rect);
+  void clear(surface * s) {
+    auto rect = CGRectMake(0, 0, s->w, s->h);
+    CGContextClearRect(s->ctx, rect);
   }
 
   void draw(const draw_params & p) {
