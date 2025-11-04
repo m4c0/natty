@@ -79,9 +79,9 @@ namespace natty {
   }
 
   void draw(const draw_params & p) {
-    auto h = (*p.surface)->h;
-    auto & ctx = (*p.surface)->ctx;
-    CGContextSetTextPosition(ctx, p.position.x, h - p.position.y - (*p.font)->h);
+    auto h = p.surface->h;
+    auto & ctx = p.surface->ctx;
+    CGContextSetTextPosition(ctx, p.position.x, h - p.position.y - p.font->h);
 
     cf_str cfstr {
       CFStringCreateWithBytesNoCopy(
@@ -89,7 +89,7 @@ namespace natty {
           kCFStringEncodingUTF8, false, kCFAllocatorNull)
     };
 
-    cf_attr_str attr_str { CFAttributedStringCreate(nullptr, cfstr, (*p.font)->attrs) };
+    cf_attr_str attr_str { CFAttributedStringCreate(nullptr, cfstr, p.font->attrs) };
     ct_line line { CTLineCreateWithAttributedString(attr_str) };
     CTLineDraw(line, ctx);
   }

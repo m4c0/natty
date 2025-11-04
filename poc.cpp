@@ -11,14 +11,14 @@ int main() {
   natty::clear(surf);
 
   natty::draw({
-    .surface = surf,
-    .font = font,
+    .surface = *surf,
+    .font = *font,
     .position { 40, 10 },
     .text = "Olá, tudo bem?",
   });
   natty::draw({
-    .surface = surf,
-    .font = font,
+    .surface = *surf,
+    .font = *font,
     .position { 0, 0 },
     .text = ".",
   });

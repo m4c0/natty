@@ -56,10 +56,10 @@ namespace natty {
   }
 
   void draw(const draw_params & p) {
-    HDC dc = (*p.surface)->dc;
-    SelectObject(dc, *p.font);
+    HDC dc = p.surface->dc;
+    SelectObject(dc, p.font);
 
-    auto [w, h] = (*p.surface)->size;
+    auto [w, h] = p.surface->size;
     RECT rect {
       .left = p.position.x,
       .top = p.position.y,

@@ -22,8 +22,8 @@ export namespace natty {
   void clear(surface_t & s);
 
   struct draw_params {
-    surface_t & surface;
-    font_t & font;
+    surface * surface;
+    font * font;
     dotz::ivec2 position;
     jute::view text;
   };
