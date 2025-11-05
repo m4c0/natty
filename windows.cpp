@@ -42,7 +42,7 @@ namespace natty {
     return surface_t{s, [](auto x) { delete x; }};
   }
 
-  void clear(surface_t * s) {
+  void clear(surface * s) {
     auto [w, h] = s->size;
     RECT rect {
       .left = 0,
