@@ -84,7 +84,7 @@ namespace natty {
     GetDIBits(s->dc, s->bmp, 0, s->size.y, s->data.begin(),
         reinterpret_cast<BITMAPINFO *>(&bmi), DIB_RGB_COLORS);
 
-    for (auto &pix : s->data) pix |= 0xFFU << 24; // add alpha channel
+    for (auto &pix : s->data) pix |= (pix & 0xFF) << 24; // add alpha channel
     return s->data;
   }
 } // namespace natty
